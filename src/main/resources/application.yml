@@ -1,3 +1,17 @@
+server:
+  port: 8080
+
 spring:
   application:
-  name: taskmanager
+    name: taskmanager
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: password
+    username: postgres
+    url: jdbc:postgresql://localhost:5433/taskmanager
+  jpa:
+    database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
