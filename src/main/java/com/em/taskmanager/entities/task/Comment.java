@@ -3,18 +3,16 @@ package com.em.taskmanager.entities.task;
 import com.em.taskmanager.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "comments")
 @Data
-@NoArgsConstructor
 @Accessors(chain = true)
 public class Comment {
     @Id
@@ -32,9 +30,9 @@ public class Comment {
     private Task task;
 
     @UpdateTimestamp
-    private LocalDateTime updated;
+    private OffsetDateTime updated;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private OffsetDateTime created;
 
 }

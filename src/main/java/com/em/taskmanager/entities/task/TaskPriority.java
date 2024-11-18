@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TaskPriority {
-    MUST,
-    SHOULD,
-    COULD,
-    WOULD;
+    CRITICAL,
+    MAJOR,
+    MEDIUM,
+    MINOR,
+    TRIVIAL;
 }

@@ -1,21 +1,17 @@
 package com.em.taskmanager.entities;
 
-import com.em.taskmanager.entities.task.Task;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
-@NoArgsConstructor
 @Accessors(chain = true)
 public class User {
     @Id
@@ -23,8 +19,9 @@ public class User {
     private Long id;
 
     private String email;
+    private String username;
 
-    private String password;
+    private String passwordHash;
 
     @ManyToMany
     @JoinTable(
@@ -34,15 +31,9 @@ public class User {
     )
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "author")
-    private List<Task> authoredTasks;
-
-    @OneToMany(mappedBy = "assignee")
-    private List<Task> assignedTasks;
-
     @UpdateTimestamp
-    private LocalDateTime updated;
+    private OffsetDateTime updated;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private OffsetDateTime created;
 }

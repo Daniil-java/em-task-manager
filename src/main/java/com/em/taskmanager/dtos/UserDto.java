@@ -10,6 +10,6 @@ import java.util.Set;
 @Accessors(chain = true)
 public class UserDto {
     private Long id;
-    private String email;
+    private String username;
     private Set<RoleDto> roles;
 }

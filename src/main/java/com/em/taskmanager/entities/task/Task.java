@@ -3,18 +3,15 @@ package com.em.taskmanager.entities.task;
 import com.em.taskmanager.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "tasks")
 @Data
-@NoArgsConstructor
 @Accessors(chain = true)
 public class Task {
     @Id
@@ -31,9 +28,6 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskPriority taskPriority;
 
-    @OneToMany(mappedBy = "task")
-    private List<Comment> comments;
-
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
@@ -42,11 +36,10 @@ public class Task {
     @JoinColumn(name = "executor_id")
     private User assignee;
 
-
     @UpdateTimestamp
-    private LocalDateTime updated;
+    private OffsetDateTime updated;
 
     @CreationTimestamp
-    private LocalDateTime created;
+    private OffsetDateTime created;
 
 }

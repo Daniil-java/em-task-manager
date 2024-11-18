@@ -1,10 +1,11 @@
 package com.em.taskmanager.dtos;
 
+import com.em.taskmanager.entities.task.TaskPriority;
+import com.em.taskmanager.entities.task.TaskStatus;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.OffsetDateTime;
 
 
 @Data
@@ -13,12 +14,11 @@ public class TaskDto {
     private Long id;
     private String tittle;
     private String description;
-    private List<CommentDto> comments;
-    private String status;
-    private String taskPriority;
+    private TaskStatus status;
+    private TaskPriority taskPriority;
     private UserDto author;
     private UserDto assignee;
-    private LocalDateTime updated;
-    private LocalDateTime created;
+    private OffsetDateTime updated;
+    private OffsetDateTime created;
 
 }

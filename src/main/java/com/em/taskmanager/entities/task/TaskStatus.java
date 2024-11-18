@@ -10,5 +10,5 @@ public enum TaskStatus {
     IN_PROGRESS("в процессе"),
     COMPLETED("завершено");
 
-    private final String description;
+    private final String name;
 }

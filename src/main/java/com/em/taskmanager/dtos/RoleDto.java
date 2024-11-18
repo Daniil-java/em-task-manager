@@ -7,5 +7,5 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class RoleDto {
-    private String authority;
+    private String name;
 }
