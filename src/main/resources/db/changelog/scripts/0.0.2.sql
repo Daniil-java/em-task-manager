@@ -19,3 +19,6 @@ drop constraint tasks_executor_id_fkey;
 
 alter table tasks
     add foreign key (assignee_id) references users;
+
+alter table tasks
+    rename column tittle to title;

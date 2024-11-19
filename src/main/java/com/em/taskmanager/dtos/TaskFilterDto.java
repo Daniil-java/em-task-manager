@@ -9,10 +9,10 @@ import java.time.OffsetDateTime;
 @Data
 public class TaskFilterDto {
     private Long authorId;
-    private Long assignee;
+    private Long assigneeId;
     private TaskStatus status;
     private TaskPriority priority;
-    private String tittle;
+    private String searchQuery;
     private OffsetDateTime createdFrom;
     private OffsetDateTime createdTo;
     private OffsetDateTime updatedFrom;

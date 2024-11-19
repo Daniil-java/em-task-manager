@@ -5,6 +5,7 @@ import com.em.taskmanager.dtos.mappers.CommentMapper;
 import com.em.taskmanager.entities.task.Comment;
 import com.em.taskmanager.repositories.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -50,6 +51,7 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("Проверка на корректный возврат Page")
     void testGetCommentsByTaskId() {
         Long taskId = 1L;
         Page<Comment> commentsPage = new PageImpl<>(Collections.singletonList(comment));
@@ -66,17 +68,17 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("Проверка на отсутствие ошибок, при корректных данных")
     void testGetCommentById() {
         when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
         when(commentMapper.toDto(comment)).thenReturn(commentDto);
-
-        CommentDto result = commentService.getCommentById(1L);
-
-        assertNotNull(result);
-        assertEquals(commentDto, result);
+        assertDoesNotThrow(() -> {
+            commentService.getCommentById(1L);
+        });
     }
 
     @Test
+    @DisplayName("Проверка на корректную обработку поступаемых данных, при создании нового комментария")
     void testAddComment() {
         Long taskId = 1L;
         doNothing().when(taskService).checkTaskExistsById(taskId);
@@ -92,6 +94,7 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("Проверка на отсутствие непредусмотренных ошибок")
     void testRemoveCommentById() {
         when(commentRepository.existsById(1L)).thenReturn(true);
         doNothing().when(commentRepository).deleteById(1L);

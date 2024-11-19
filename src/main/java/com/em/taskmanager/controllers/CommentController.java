@@ -90,7 +90,7 @@ public class CommentController {
                             description = "Комментарий успешно удален"
                     ),
                     @ApiResponse(
-                            responseCode = "404",
+                            responseCode = "400",
                             description = "Комментарий не найден"
                     )
             }

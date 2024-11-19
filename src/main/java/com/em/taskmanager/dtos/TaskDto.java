@@ -18,7 +18,7 @@ public class TaskDto {
     private Long id;
     @NotNull
     @Schema(description = "Название задачи")
-    private String tittle;
+    private String title;
     @Schema(description = "Описание задачи")
     private String description;
     @NotNull

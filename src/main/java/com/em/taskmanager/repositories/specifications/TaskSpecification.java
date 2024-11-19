@@ -17,8 +17,8 @@ public class TaskSpecification {
             if (filterDto.getAuthorId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("author").get("id"), filterDto.getAuthorId()));
             }
-            if (filterDto.getAssignee() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("assignee").get("id"), filterDto.getAssignee()));
+            if (filterDto.getAssigneeId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("assignee").get("id"), filterDto.getAssigneeId()));
             }
             if (filterDto.getStatus() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), filterDto.getStatus()));
@@ -26,8 +26,12 @@ public class TaskSpecification {
             if (filterDto.getPriority() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("taskPriority"), filterDto.getPriority()));
             }
-            if (filterDto.getTittle() != null) {
-                predicates.add(criteriaBuilder.like(root.get("tittle"), "%" + filterDto.getTittle() + "%"));
+            if (filterDto.getSearchQuery() != null) {
+                Predicate titlePredicate = criteriaBuilder
+                        .like(criteriaBuilder.lower(root.get("title")), "%" + filterDto.getSearchQuery().toLowerCase() + "%");
+                Predicate descriptionPredicate = criteriaBuilder
+                        .like(criteriaBuilder.lower(root.get("description")), "%" + filterDto.getSearchQuery().toLowerCase() + "%");
+                predicates.add(criteriaBuilder.or(titlePredicate, descriptionPredicate));
             }
             if (filterDto.getCreatedFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("created"), filterDto.getCreatedFrom()));
