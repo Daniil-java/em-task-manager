@@ -18,7 +18,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tittle;
+    private String title;
 
     private String description;
 
@@ -33,7 +33,7 @@ public class Task {
     private User author;
 
     @ManyToOne
-    @JoinColumn(name = "executor_id")
+    @JoinColumn(name = "assignee_id")
     private User assignee;
 
     @UpdateTimestamp
