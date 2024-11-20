@@ -15,7 +15,10 @@ public enum ErrorStatus {
     COMMENT_UPDATE_ERROR(HttpStatus.BAD_REQUEST, "Comment Update Error!"),
 
     USER_CREATION_ERROR(HttpStatus.BAD_REQUEST, "User Creation Error!"),
-    USER_NOT_FOUND_ERROR(HttpStatus.BAD_REQUEST, "User not found!");
+    USER_NOT_FOUND_ERROR(HttpStatus.BAD_REQUEST, "User not found!"),
+    USER_USERNAME_EXISTS(HttpStatus.BAD_REQUEST, "Username already exists!" ),
+    USER_EMAIL_EXISTS(HttpStatus.BAD_REQUEST, "Email already exists!"),
+    ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "Role not found!");
 
     private HttpStatus httpStatus;
     private String message;
