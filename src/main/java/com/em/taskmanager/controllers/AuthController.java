@@ -23,8 +23,8 @@ public class AuthController {
 
     @Operation(summary = "Регистрация пользователя")
     @PostMapping("/sign-up")
-    public JwtAuthenticationResponse signUp(@RequestBody @Validated SignUpRequest request) {
-        return authenticationService.signUp(request);
+    public void signUp(@RequestBody @Validated SignUpRequest request) {
+        authenticationService.signUp(request);
     }
 
     @Operation(summary = "Авторизация пользователя")

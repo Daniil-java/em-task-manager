@@ -1,6 +1,6 @@
 package com.em.taskmanager.filters;
 
-import com.em.taskmanager.entities.User;
+import com.em.taskmanager.dtos.CustomUserDetails;
 import com.em.taskmanager.services.JwtService;
 import com.em.taskmanager.services.UserService;
 import jakarta.servlet.FilterChain;
@@ -35,25 +35,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String authHeader = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+        if (StringUtils.isBlank(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authHeader.substring(BEARER_PREFIX.length());
+        String jwt = authHeader.substring(BEARER_PREFIX.length()).trim();
         Long userId = jwtService.extractUserId(jwt);
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = userService.getUserById(userId);
+            CustomUserDetails userDetails = CustomUserDetails.toUserDetails(userService.getUserById(userId));
 
-            if (jwtService.isTokenValid(jwt, user)) {
+            if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user,
+                        userDetails,
                         null,
-                        user.getAuthorities()
+                        userDetails.getAuthorities()
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
