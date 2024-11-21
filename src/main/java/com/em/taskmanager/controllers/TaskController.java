@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +79,7 @@ public class TaskController {
             }
     )
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public TaskDto addTask(@RequestBody @Validated TaskDto taskDto) {
         return taskService.addTask(taskDto);
     }
@@ -114,6 +116,7 @@ public class TaskController {
             }
     )
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void removeTaskById(@PathVariable Long id) {
         taskService.removeTaskById(id);
     }
