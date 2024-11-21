@@ -23,9 +23,10 @@ import java.util.Map;
 @Service
 public class JwtService {
     private static final long TOKEN_EXPIRATION_PERIOD_MILLISECONDS = 100000L * 60 * 1000;
-    private final String securityKey;
+    private final SecretKey signingKey;
+
     public JwtService(@Value("${SECURITY_KEY}") String securityKey) {
-        this.securityKey = securityKey;
+        this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(securityKey));
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -36,7 +37,10 @@ public class JwtService {
         }
 
         try {
-            // Преобразование OffsetDateTime в Date или String
+            // Преобразование OffsetDateTime в Date
+            //OffsetDateTime конвертирую в Date, потому что библиотека,
+            // используемая для создания JWT токена (например, JJWT),
+            // требует, чтобы даты были в формате java.util.Date.
             claims.forEach((key, value) -> {
                 if (value instanceof OffsetDateTime) {
                     OffsetDateTime dateTime = (OffsetDateTime) value;
@@ -54,7 +58,7 @@ public class JwtService {
                     .subject(userDetails.getUsername())
                     .issuedAt(new Date(System.currentTimeMillis()))
                     .expiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_PERIOD_MILLISECONDS))
-                    .signWith(getSigningKey(), Jwts.SIG.HS256)
+                    .signWith(signingKey, Jwts.SIG.HS256)
                     .compact();
         } catch (IllegalArgumentException e) {
             throw new ErrorResponseException(ErrorStatus.TOKEN_BUILD_ERROR);
@@ -82,7 +86,7 @@ public class JwtService {
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         try {
             Claims claims = Jwts.parser()
-                    .verifyWith(getSigningKey())
+                    .verifyWith(signingKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
@@ -91,11 +95,6 @@ public class JwtService {
             throw new ErrorResponseException(ErrorStatus.TOKEN_INVALID);
         }
 
-    }
-
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(securityKey);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 
 }

@@ -50,11 +50,6 @@ public class UserService implements UserDetailsService{
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.USER_NOT_FOUND_ERROR));
     }
 
-    public UserDetailsService userDetailsService() {
-        return this::loadUserByUsername;
-    }
-
-
     // Получение имени пользователя из контекста Spring Security
     public User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
