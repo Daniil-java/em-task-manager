@@ -1,21 +1,32 @@
 package com.em.taskmanager.services;
 
 import com.em.taskmanager.dtos.CommentDto;
+import com.em.taskmanager.dtos.CustomUserDetails;
+import com.em.taskmanager.dtos.UserDto;
 import com.em.taskmanager.dtos.mappers.CommentMapper;
+import com.em.taskmanager.entities.Role;
+import com.em.taskmanager.entities.RoleName;
+import com.em.taskmanager.entities.User;
 import com.em.taskmanager.entities.task.Comment;
+import com.em.taskmanager.entities.task.Task;
+import com.em.taskmanager.exceptions.ErrorResponseException;
 import com.em.taskmanager.repositories.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,10 +55,12 @@ class CommentServiceTest {
         comment = new Comment();
         comment.setId(1L);
         comment.setContent("Test comment");
+        comment.setAuthor(new User().setId(1L));
 
         commentDto = new CommentDto();
         commentDto.setId(1L);
         commentDto.setContent("Test comment");
+        commentDto.setAuthor(new UserDto().setId(1L));;
     }
 
     @Test
@@ -78,17 +91,63 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("Проверка на корректный выброс ошибки не корректных данных")
+    void testAddCommentThrowInvalidVariables() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(new User()
+                .setId(1L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_ADMIN)))
+        ));
+
+        Task correctTask = new Task()
+                .setAssignee(new User().setId(1L));
+        Long taskId = 1L;
+        when(taskService.getTaskById(taskId)).thenReturn(correctTask);
+
+        assertThrows(ErrorResponseException.class, () -> commentService.addComment(authentication, taskId, commentDto));
+    }
+
+    @Test
+    @DisplayName("Проверка на корректный выброс ошибки доступа")
+    void testAddCommentThrowAccessDenied() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(new User()
+                .setId(2L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_USER)))
+        ));
+
+        Task correctTask = new Task()
+                .setAssignee(new User().setId(1L));
+        Long taskId = 1L;
+        when(taskService.getTaskById(taskId)).thenReturn(correctTask);
+
+        commentDto.setId(null);
+        assertThrows(ErrorResponseException.class, () -> commentService.addComment(authentication, taskId, commentDto));
+
+    }
+
+    @Test
     @DisplayName("Проверка на корректную обработку поступаемых данных, при создании нового комментария")
     void testAddComment() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(new User()
+                .setId(1L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_USER)))
+        ));
+
+        Task correctTask = new Task()
+                .setAssignee(new User().setId(1L));
+
         Long taskId = 1L;
-        doNothing().when(taskService).checkTaskExistsById(taskId);
+        when(taskService.getTaskById(taskId)).thenReturn(correctTask);
         when(commentMapper.toEntity(commentDto)).thenReturn(comment);
         when(commentRepository.save(comment)).thenReturn(comment);
         when(commentMapper.toDto(comment)).thenReturn(commentDto);
 
         commentDto.setId(null);
-        CommentDto result = commentService.addComment(taskId, commentDto);
+        CommentDto result = commentService.addComment(authentication, taskId, commentDto);
 
+        assertDoesNotThrow(() -> commentService.addComment(authentication, taskId, commentDto));
         assertNotNull(result);
         assertEquals(commentDto, result);
     }

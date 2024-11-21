@@ -4,10 +4,15 @@ package com.em.taskmanager.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.em.taskmanager.dtos.CustomUserDetails;
 import com.em.taskmanager.dtos.TaskDto;
 import com.em.taskmanager.dtos.TaskFilterDto;
 import com.em.taskmanager.dtos.mappers.TaskMapper;
+import com.em.taskmanager.entities.Role;
+import com.em.taskmanager.entities.RoleName;
+import com.em.taskmanager.entities.User;
 import com.em.taskmanager.entities.task.Task;
+import com.em.taskmanager.entities.task.TaskStatus;
 import com.em.taskmanager.exceptions.ErrorResponseException;
 import com.em.taskmanager.repositories.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,14 +20,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 class TaskServiceTest {
 
@@ -116,5 +124,64 @@ class TaskServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    @DisplayName("Проверка на корректное обновление статуса")
+    void testUpdateTaskStatus() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        User user = new User()
+                .setId(1L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_USER)));
+
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(user));
+
+        task.setAssignee(user);
+
+        Long taskId = 1L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+        when(taskMapper.toDto(task)).thenReturn(taskDto);
+
+        assertDoesNotThrow(() -> taskService.updateTaskStatus(authentication, task.getId(), TaskStatus.PENDING.name()));
+    }
+
+    @Test
+    @DisplayName("Проверка на корректное выброс ошибки доступа")
+    void testUpdateTaskStatusThrowsAccessDenied() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        User user = new User()
+                .setId(1L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_USER)));
+
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(user));
+
+        task.setAssignee(new User().setId(2L));
+
+        Long taskId = 1L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+
+        assertThrows(ErrorResponseException.class, () -> taskService.updateTaskStatus(authentication, task.getId(), TaskStatus.PENDING.name()));
+    }
+
+    @Test
+    @DisplayName("Проверка на корректное обновление статуса")
+    void testUpdateTaskStatusThrowsInvalidVariables() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        User user = new User()
+                .setId(1L)
+                .setRoles(Set.of(new Role().setName(RoleName.ROLE_USER)));
+
+        Mockito.when(authentication.getPrincipal()).thenReturn(CustomUserDetails.toUserDetails(user));
+
+        task.setAssignee(user);
+
+        Long taskId = 1L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+        when(taskMapper.toDto(task)).thenReturn(taskDto);
+
+        assertThrows(ErrorResponseException.class, () -> taskService.updateTaskStatus(authentication, task.getId(), TaskStatus.PENDING.getName()));
     }
 }
