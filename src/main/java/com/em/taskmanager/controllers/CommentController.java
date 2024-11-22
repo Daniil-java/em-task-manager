@@ -43,11 +43,12 @@ public class CommentController {
     )
     @GetMapping("/tasks/{taskId}/comments")
     public Page<CommentDto> getCommentsByTaskId(
+            Authentication authentication,
             @Parameter(description = "ID задачи", required = true) @PathVariable Long taskId,
             @Parameter(description = "Номер страницы", required = false) @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Количество элементов на странице", required = false)
             @RequestParam(defaultValue = "10") int pageSize) {
-        return commentService.getCommentsByTaskId(taskId, page, pageSize);
+        return commentService.getCommentsByTaskId(authentication, taskId, page, pageSize);
     }
 
 

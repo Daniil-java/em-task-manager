@@ -45,8 +45,9 @@ public class TaskController {
     )
     @GetMapping
     public Page<TaskDto> getTasks(
+            Authentication authentication,
             @Parameter(description = "Данные фильтра", required = true) @ModelAttribute TaskFilterDto taskFilterDto) {
-        return taskService.getTasks(taskFilterDto);
+        return taskService.getTasks(authentication, taskFilterDto);
     }
 
     @Operation(
@@ -84,8 +85,9 @@ public class TaskController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public TaskDto addTask(
+            Authentication authentication,
             @Parameter(description = "Данные для добавления новой задачи", required = true) @RequestBody @Validated TaskDto taskDto) {
-        return taskService.addTask(taskDto);
+        return taskService.addTask(authentication, taskDto);
     }
 
     @Operation(
@@ -148,27 +150,6 @@ public class TaskController {
             @Parameter(description = "ID задачи", required = true) @PathVariable Long id,
             @Parameter(description = "Статус задачи", required = true) @RequestParam String status) {
         return taskService.updateTaskStatus(authentication, id, status);
-    }
-
-    @Operation(
-            summary = "Получение всех задач для исполнителя",
-            responses = {
-                    @ApiResponse(
-                            description = "Успешный ответ", responseCode = "200",
-                            content = @Content(array = @ArraySchema(schema =
-                            @Schema(implementation = TaskDto.class)))
-                    ),
-                    @ApiResponse(
-                            description = "Провальный ответ", responseCode = "400",
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-                    )
-            }
-    )
-    @GetMapping("/my-tasks")
-    public Page<TaskDto> getAssignedTasks(Authentication authentication,
-                                          @Parameter(description = "Номер страницы", required = false) @RequestParam(defaultValue = "0") int page,
-                                          @Parameter(description = "Количество элементов на странице", required = false)@RequestParam(defaultValue = "10") int pageSize) {
-        return taskService.getTaskByAuth(authentication, page, pageSize);
     }
 
 }

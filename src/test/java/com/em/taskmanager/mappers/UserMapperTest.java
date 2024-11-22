@@ -3,6 +3,7 @@ package com.em.taskmanager.mappers;
 import com.em.taskmanager.dtos.UserDto;
 import com.em.taskmanager.dtos.mappers.UserMapper;
 import com.em.taskmanager.entities.User;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ public class UserMapperTest {
     private UserMapper userMapper;
 
     @Test
+    @DisplayName("Конвертация сущности в DTO")
     void testToDto() {
         User user = new User()
                 .setId(1L)
@@ -29,6 +31,7 @@ public class UserMapperTest {
     }
 
     @Test
+    @DisplayName("Конвертация ДТО в сущность")
     void testToEntity() {
         UserDto userDto = new UserDto()
                 .setId(1L)

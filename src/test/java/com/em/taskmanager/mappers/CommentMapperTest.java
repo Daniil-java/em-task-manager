@@ -5,6 +5,7 @@ import com.em.taskmanager.dtos.UserDto;
 import com.em.taskmanager.dtos.mappers.CommentMapper;
 import com.em.taskmanager.entities.User;
 import com.em.taskmanager.entities.task.Comment;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,7 @@ public class CommentMapperTest {
     private CommentMapper commentMapper;
 
     @Test
+    @DisplayName("Конвертация сущности в DTO")
     void testToDto() {
         Comment comment = new Comment()
                 .setId(1L)
@@ -40,6 +42,7 @@ public class CommentMapperTest {
     }
 
     @Test
+    @DisplayName("Конвертация ДТО в сущность")
     void testToEntity() {
         CommentDto commentDto = new CommentDto()
                 .setId(1L)
@@ -57,6 +60,7 @@ public class CommentMapperTest {
     }
 
     @Test
+    @DisplayName("Конвертация списка сущностей в список DTO")
     void testToDtoList() {
         List<Comment> commentList = Arrays.asList(new Comment(), new Comment());
         List<CommentDto> commentDtoList = commentMapper.toDtoList(commentList);
@@ -66,6 +70,7 @@ public class CommentMapperTest {
     }
 
     @Test
+    @DisplayName("Конвертация списка дто в список сущностей")
     void testToEntityList() {
         List<CommentDto> commentDtoList = Arrays.asList(new CommentDto(), new CommentDto());
         List<Comment> commentList = commentMapper.toEntityList(commentDtoList);

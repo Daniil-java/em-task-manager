@@ -4,6 +4,8 @@ import com.em.taskmanager.dtos.CustomUserDetails;
 import com.em.taskmanager.dtos.TaskDto;
 import com.em.taskmanager.dtos.TaskFilterDto;
 import com.em.taskmanager.dtos.mappers.TaskMapper;
+import com.em.taskmanager.entities.RoleName;
+import com.em.taskmanager.entities.User;
 import com.em.taskmanager.entities.task.Task;
 import com.em.taskmanager.entities.task.TaskStatus;
 import com.em.taskmanager.exceptions.ErrorResponseException;
@@ -24,6 +26,7 @@ public class TaskService {
 
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
+    private final UserService userService;
 
     public TaskDto getTaskDtoById(Long taskId) {
         return taskMapper.toDto(getTaskById(taskId));
@@ -34,12 +37,16 @@ public class TaskService {
                 .orElseThrow(() -> new ErrorResponseException(ErrorStatus.TASK_NOT_FOUND));
     }
 
-    public TaskDto addTask(TaskDto taskDto) {
+    public TaskDto addTask(Authentication authentication, TaskDto taskDto) {
         if (taskDto.getId() != null) {
             throw new ErrorResponseException(ErrorStatus.TASK_CREATION_ERROR);
         }
+
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        User author = userService.getUserById(user.getId());
+
         return taskMapper.toDto(
-                taskRepository.save(taskMapper.toEntity(taskDto))
+                taskRepository.save(taskMapper.toEntity(taskDto).setAuthor(author))
         );
     }
 
@@ -66,7 +73,14 @@ public class TaskService {
         }
     }
 
-    public Page<TaskDto> getTasks(TaskFilterDto taskFilterDto) {
+    public Page<TaskDto> getTasks(Authentication authentication, TaskFilterDto taskFilterDto) {
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+
+        if (!user.hasRole(RoleName.ROLE_ADMIN)
+                && taskFilterDto.getAssigneeId() != user.getId()) {
+            throw new ErrorResponseException(ErrorStatus.TASK_ASSIGNEE_ACCESS_DENIED);
+        }
+
         Specification<Task> spec = TaskSpecification.createSpecification(taskFilterDto);
 
         return taskRepository.findAll(
@@ -79,12 +93,14 @@ public class TaskService {
         CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
         Task task = getTaskById(id);
 
-        if (task.getAssignee() == null) {
-            throw new ErrorResponseException(ErrorStatus.TASK_ASSIGNEE_NOT_FOUND);
-        }
+        if (!user.hasRole(RoleName.ROLE_ADMIN)) {
+            if (task.getAssignee() == null) {
+                throw new ErrorResponseException(ErrorStatus.TASK_ASSIGNEE_ACCESS_DENIED);
+            }
 
-        if (!task.getAssignee().getId().equals(user.getId())) {
-            throw new ErrorResponseException(ErrorStatus.TASK_ACCESS_DENIED);
+            if (!task.getAssignee().getId().equals(user.getId())) {
+                throw new ErrorResponseException(ErrorStatus.TASK_ACCESS_DENIED);
+            }
         }
 
         try {
@@ -93,12 +109,5 @@ public class TaskService {
         } catch (IllegalArgumentException e) {
             throw new ErrorResponseException(ErrorStatus.TASK_INVALID_VARIABLE);
         }
-    }
-
-    public Page<TaskDto> getTaskByAuth(Authentication authentication, int page, int pageSize) {
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-
-        Page<Task> taskPage = taskRepository.findAllByAssigneeId(user.getId(), PageRequest.of(page, pageSize));
-        return taskPage.map(taskMapper::toDto);
     }
 }
