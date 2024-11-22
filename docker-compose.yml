@@ -1,17 +1,26 @@
-version: '3'
-#CMD: docker-compose up -d
+version: '3.8'
 
 services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskmanager
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SECURITY_KEY: wMz1T1IiGnPbleQ3auQ/Br2ydGtvGHJPvwX+oiD8DgM=
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:15.3
-    domainname: postgres
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=taskmanager
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: taskmanager
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
       interval: 5s
