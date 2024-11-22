@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
     Page<Task> findAll(Pageable pageable);
+    Page<Task> findAllByAssigneeId(Long id, Pageable pageable);
 }

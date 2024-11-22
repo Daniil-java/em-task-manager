@@ -1,5 +1,6 @@
 package com.em.taskmanager.dtos;
 
+import com.em.taskmanager.entities.RoleName;
 import com.em.taskmanager.entities.User;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,11 @@ public class CustomUserDetails implements UserDetails {
     private final String username;
     private final String passwordHash;
     private final Set<GrantedAuthority> authorities;
+
+    public boolean hasRole(RoleName roleName) {
+        return authorities.stream()
+                .anyMatch(authority -> authority.getAuthority().equals(roleName.name()));
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
