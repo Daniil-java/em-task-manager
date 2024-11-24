@@ -10,6 +10,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SECURITY_KEY: wMz1T1IiGnPbleQ3auQ/Br2ydGtvGHJPvwX+oiD8DgM=
+#      Ключ безопасности можно указать и следующим образом:
+#      SECURITY_KEY: ${SECURITY_KEY}
     depends_on:
       - postgres
 
